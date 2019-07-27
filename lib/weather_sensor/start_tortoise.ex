@@ -9,7 +9,7 @@ defmodule WeatherSensor.StartTortoise do
     Tortoise.Supervisor.start_child(
       client_id: "weather_sensor",
       handler: {Tortoise.Handler.Logger, []},
-      server: {Tortoise.Transport.Tcp, host: '10.0.0.7', port: 1883}
+      server: {Tortoise.Transport.Tcp, host: '10.0.0.3', port: 1883}
     )
   end
 end

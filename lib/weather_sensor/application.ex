@@ -11,8 +11,19 @@ defmodule WeatherSensor.Application do
     opts = [strategy: :one_for_one, name: WeatherSensor.Supervisor]
     children =
       [
-        {WeatherSensor.StartTortoise, []}
+        {WeatherSensor.DhtServer, []},
+        {WeatherSensor.MotionServer, []}
       ] ++ children(target())
+
+    Tortoise.Supervisor.start_child(
+      client_id: "weather_sensor",
+      handler: {Tortoise.Handler.Logger, []},
+      server: {
+        Tortoise.Transport.Tcp,
+        host: Application.get_env(:weather_sensor, :mqtt_broker),
+        port: Application.get_env(:weather_sensor, :mqtt_port)
+      }
+    )
 
     Supervisor.start_link(children, opts)
   end
