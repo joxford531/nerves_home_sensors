@@ -7,6 +7,13 @@ use Mix.Config
 
 config :weather_sensor, target: Mix.target()
 
+config :weather_sensor,
+  sr501_pin: 20,
+  dht_pin: 4,
+  mqtt_broker: '10.0.0.3',
+  mqtt_port: 1883
+
+
 # Customize non-Elixir parts of the firmware. See
 # https://hexdocs.pm/nerves/advanced-configuration.html for details.
 
