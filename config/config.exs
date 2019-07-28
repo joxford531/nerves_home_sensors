@@ -10,6 +10,7 @@ config :weather_sensor, target: Mix.target()
 config :weather_sensor,
   sr501_pin: 20,
   dht_pin: 4,
+  bmp_pin: 0x77,
   mqtt_broker: '10.0.0.3',
   mqtt_port: 1883
 

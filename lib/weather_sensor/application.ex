@@ -11,7 +11,7 @@ defmodule WeatherSensor.Application do
     opts = [strategy: :one_for_one, name: WeatherSensor.Supervisor]
     children =
       [
-        {WeatherSensor.DhtServer, []},
+        {WeatherSensor.WeatherServer, []},
         {WeatherSensor.MotionServer, []}
       ] ++ children(target())
 

@@ -46,6 +46,7 @@ defmodule WeatherSensor.MixProject do
       {:tortoise, "~> 0.9"},
       {:jason, "~> 1.1"},
       {:circuits_gpio, "~> 0.1"},
+      {:circuits_i2c, "~> 0.1"},
 
       # Dependencies for all targets except :host
       {:nerves_runtime, "~> 0.6", targets: @all_targets},
