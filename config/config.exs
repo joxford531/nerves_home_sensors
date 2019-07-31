@@ -5,15 +5,24 @@
 # is restricted to this project.
 use Mix.Config
 
+import_config "private.exs"
+
 config :weather_sensor, target: Mix.target()
+
+config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
+
+config :tzdata, :autoupdate, :disabled
 
 config :weather_sensor,
   sr501_pin: 20,
   dht_pin: 4,
   bmp_pin: 0x77,
-  mqtt_broker: '10.0.0.3',
-  mqtt_port: 1883
+  timezone: "America/New_York"
 
+config :power_control,
+  cpu_governor: :powersave,
+  disable_hdmi: true,
+  disable_leds: true
 
 # Customize non-Elixir parts of the firmware. See
 # https://hexdocs.pm/nerves/advanced-configuration.html for details.
@@ -25,7 +34,7 @@ config :nerves, :firmware, rootfs_overlay: "rootfs_overlay"
 # involved with firmware updates.
 
 config :shoehorn,
-  init: [:nerves_runtime, :nerves_init_gadget],
+  init: [:nerves_runtime, :nerves_init_gadget, :power_control],
   app: Mix.Project.config()[:app]
 
 # Use Ringlogger as the logger backend and remove :console.

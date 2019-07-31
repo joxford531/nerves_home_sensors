@@ -18,10 +18,12 @@ defmodule WeatherSensor.Application do
     Tortoise.Supervisor.start_child(
       client_id: "weather_sensor",
       handler: {Tortoise.Handler.Logger, []},
+      user_name: Application.get_env(:weather_sensor, :broker_user),
+      password: Application.get_env(:weather_sensor, :broker_password),
       server: {
         Tortoise.Transport.Tcp,
-        host: Application.get_env(:weather_sensor, :mqtt_broker),
-        port: Application.get_env(:weather_sensor, :mqtt_port)
+        host: Application.get_env(:weather_sensor, :broker_host),
+        port: Application.get_env(:weather_sensor, :broker_port)
       }
     )
 
