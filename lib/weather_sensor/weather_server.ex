@@ -1,6 +1,5 @@
 defmodule WeatherSensor.WeatherServer do
   use GenServer
-  use Timex
   require Logger
   alias WeatherSensor.BmpSensor
 
@@ -18,8 +17,8 @@ defmodule WeatherSensor.WeatherServer do
 
   @impl true
   def handle_info(:collect, ref) do
-    {:ok, time} = DateTime.now(Application.get_env(:weather_sensor, :timezone))
-    {:ok, formatted_time} = Timex.format(time, "{YYYY}-{M}-{D} {h24}:{m}:{s}{Z}")
+    utc_time = DateTime.utc_now()
+    timezone = Application.get_env(:weather_sensor, :timezone)
     {:ok, humidity, temp} = NervesDHT.read(:am2302, Application.get_env(:weather_sensor, :dht_pin))
 
     pressure =
@@ -34,9 +33,9 @@ defmodule WeatherSensor.WeatherServer do
       |> Float.round(1)
 
     Tortoise.publish("weather_sensor", "front/temp_humidity_pressure",
-      Jason.encode!(%{humidity: humidity, temp: temp_f, pressure: pressure, time: time}), qos: 0)
+      Jason.encode!(%{humidity: humidity, temp: temp_f, pressure: pressure, utc_time: utc_time, timezone: timezone}), qos: 0)
 
-    Logger.info("#{formatted_time} -- humidity: #{humidity}%, temp: #{temp_f}°F, pressure: #{pressure} inHg")
+    Logger.info("#{utc_time} -- humidity: #{humidity}%, temp: #{temp_f}°F, pressure: #{pressure} inHg")
     schedule_collection()
 
     {:noreply, ref}

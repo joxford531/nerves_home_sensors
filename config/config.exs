@@ -9,8 +9,6 @@ import_config "private.exs"
 
 config :weather_sensor, target: Mix.target()
 
-config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
-
 config :tzdata, :autoupdate, :disabled
 
 config :weather_sensor,

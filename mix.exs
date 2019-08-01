@@ -31,7 +31,7 @@ defmodule WeatherSensor.MixProject do
   def application do
     [
       mod: {WeatherSensor.Application, []},
-      extra_applications: [:logger, :runtime_tools, :timex]
+      extra_applications: [:logger, :runtime_tools]
     ]
   end
 
@@ -48,7 +48,6 @@ defmodule WeatherSensor.MixProject do
       {:circuits_gpio, "~> 0.1"},
       {:circuits_i2c, "~> 0.1"},
       {:nerves_time, "~> 0.2"},
-      {:timex, "~> 3.5"},
 
       # Dependencies for all targets except :host
       {:nerves_runtime, "~> 0.6", targets: @all_targets},
