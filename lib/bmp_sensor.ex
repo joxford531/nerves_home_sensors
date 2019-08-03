@@ -151,6 +151,11 @@ defmodule WeatherSensor.BmpSensor do
       units: :us}
   end
 
+  def calculate_dewpoint(humidity, temp) do
+    k = :math.log(humidity/100) + (17.62 * temp) / (243.12 + temp)
+    243.12 * k / (17.62 - k)
+  end
+
   def celsius_to_fahrenheit(t) do
     32 + 1.8 * t
   end

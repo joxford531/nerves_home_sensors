@@ -32,10 +32,22 @@ defmodule WeatherSensor.WeatherServer do
       BmpSensor.celsius_to_fahrenheit(temp)
       |> Float.round(1)
 
-    Tortoise.publish("weather_sensor", "front/temp_humidity_pressure",
-      Jason.encode!(%{humidity: humidity, temp: temp_f, pressure: pressure, utc_time: utc_time, timezone: timezone}), qos: 0)
+    dew_point =
+      BmpSensor.calculate_dewpoint(humidity, temp)
+      |> BmpSensor.celsius_to_fahrenheit()
+      |> Float.round(1)
 
-    Logger.info("#{utc_time} -- humidity: #{humidity}%, temp: #{temp_f}°F, pressure: #{pressure} inHg")
+    Tortoise.publish("weather_sensor", "front/temp_humidity_pressure",
+      Jason.encode!(%{
+        humidity: humidity,
+        temp: temp_f,
+        pressure: pressure,
+        dew_point: dew_point,
+        utc_time: utc_time,
+        timezone: timezone}),
+      qos: 0)
+
+    Logger.info("#{utc_time} -- humidity: #{humidity}%, temp: #{temp_f}°F, dew_point #{dew_point}°F, pressure: #{pressure} inHg")
     schedule_collection()
 
     {:noreply, ref}
