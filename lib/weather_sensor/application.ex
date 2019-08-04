@@ -11,7 +11,8 @@ defmodule WeatherSensor.Application do
     opts = [strategy: :one_for_one, name: WeatherSensor.Supervisor]
     children =
       [
-        {WeatherSensor.WeatherServer, []}
+        {WeatherSensor.WeatherServer, []},
+        {WeatherSensor.MotionServer, []}
       ] ++ children(target())
 
     Tortoise.Supervisor.start_child(
