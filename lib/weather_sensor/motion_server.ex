@@ -1,6 +1,6 @@
 defmodule WeatherSensor.MotionServer do
-  alias WeatherSensor.Hcsr04Server
   use GenServer
+  alias Circuits.GPIO
   require Logger
 
   def start_link(_) do
@@ -10,31 +10,25 @@ defmodule WeatherSensor.MotionServer do
 
   @impl true
   def init(_) do
-    {:ok, sensor} = Hcsr04Server.start_link(
-      {
-        Application.get_env(:weather_sensor, :hcsr04_echo_pin),
-        Application.get_env(:weather_sensor, :hcsr04_trig_pin)
-      }
-    )
+    {:ok, trig} = GPIO.open(Application.get_env(:weather_sensor, :hcsr04_trig_pin), :output)
+    {:ok, echo} = GPIO.open(Application.get_env(:weather_sensor, :hcsr04_echo_pin), :input)
     schedule_collection()
-    {:ok, sensor}
+    {:ok, %{trig: trig, echo: echo}}
   end
 
   @impl true
-  def handle_info(:collect, sensor) do
-    :ok = Hcsr04Server.update(sensor)
-    Process.sleep(100)
-    {:ok, distance} = Hcsr04Server.info(sensor)
+  def handle_info(:collect, %{trig: trig, echo: echo}) do
+    distance = get_distance(trig, echo)
 
     cond do
-      distance < 140 ->
+      distance < 200 ->
         Tortoise.publish("weather_sensor", "front/motion", "#{distance}", qos: 0)
-        Logger.info("Distance: #{distance}cm, Motion Detected!")
+        Logger.info("Distance: #{distance}cm")
         schedule_collection(10_000)
       true -> schedule_collection()
     end
 
-    {:noreply, sensor}
+    {:noreply, %{trig: trig, echo: echo}}
   end
 
   @impl true
@@ -50,5 +44,32 @@ defmodule WeatherSensor.MotionServer do
 
   defp schedule_collection(delay) when is_number(delay) do
     Process.send_after(self(), :collect, delay)
+  end
+
+  defp get_distance(trig, echo) do
+    GPIO.write(trig, 0)
+    Process.sleep(2)
+    GPIO.write(trig, 1)
+    Process.sleep(1)
+    GPIO.set_interrupts(echo, :both);
+
+    time_start =
+      receive do
+        {:circuits_gpio, _pin, time_start, 1} -> time_start
+      after
+        5_000 -> raise "time_start not receieved for HC-SR04 sensor"
+      end
+
+    time_end =
+      receive do
+        {:circuits_gpio, _pin, time_end, 0} -> time_end
+      after
+        5_000 -> raise "time_stop not receieved for HC-SR04 sensor"
+      end
+
+    diff_in_s = (time_end - time_start) / 1.0e9
+    dist_in_cm = Float.round(diff_in_s * 17150.0, 2)
+
+    dist_in_cm
   end
 end

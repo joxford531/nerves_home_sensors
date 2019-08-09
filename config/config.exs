@@ -12,8 +12,8 @@ config :weather_sensor, target: Mix.target()
 config :tzdata, :autoupdate, :disabled
 
 config :weather_sensor,
-  hcsr04_echo_pin: 23,
-  hcsr04_trig_pin: 24,
+  hcsr04_echo_pin: 24,
+  hcsr04_trig_pin: 23,
   dht_pin: 4,
   bmp_pin: 0x77,
   timezone: "America/New_York"
