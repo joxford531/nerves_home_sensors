@@ -52,7 +52,6 @@ defmodule WeatherSensor.MixProject do
       # Dependencies for all targets except :host
       {:nerves_runtime, "~> 0.6", targets: @all_targets},
       {:nerves_init_gadget, "~> 0.4", targets: @all_targets},
-      {:nerves_dht, git: "https://github.com/joxford531/nerves_dht.git", targets: @all_targets},
       {:power_control, "~> 0.1.0", targets: @all_targets},
 
       # Dependencies for specific targets

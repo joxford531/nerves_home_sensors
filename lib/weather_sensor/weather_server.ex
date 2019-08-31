@@ -1,16 +1,16 @@
 defmodule WeatherSensor.WeatherServer do
   use GenServer
   require Logger
-  alias WeatherSensor.BmpSensor
+  alias WeatherSensor.Sht31Sensor
 
   def start_link(_) do
-    Logger.info("Starting DHT Reader")
+    Logger.info("Starting Weather Server")
     GenServer.start_link(__MODULE__, nil, name: __MODULE__)
   end
 
   @impl true
   def init(_) do
-    ref = BmpSensor.start()
+    ref = Sht31Sensor.start()
     schedule_collection()
     {:ok, ref}
   end
@@ -19,35 +19,29 @@ defmodule WeatherSensor.WeatherServer do
   def handle_info(:collect, ref) do
     utc_time = DateTime.utc_now()
     timezone = Application.get_env(:weather_sensor, :timezone)
-    {:ok, humidity, temp} = NervesDHT.read(:am2302, Application.get_env(:weather_sensor, :dht_pin))
-
-    pressure =
-      BmpSensor.read_pressure(ref)
-      |> BmpSensor.pascals_to_inHg()
-      |> Float.round(2)
+    {:ok, humidity, temp} = Sht31Sensor.read_temp_humidity(ref)
 
     humidity = Float.round(humidity, 1)
 
     temp_f =
-      BmpSensor.celsius_to_fahrenheit(temp)
+      Sht31Sensor.celsius_to_fahrenheit(temp)
       |> Float.round(1)
 
     dew_point =
-      BmpSensor.calculate_dewpoint(humidity, temp)
-      |> BmpSensor.celsius_to_fahrenheit()
+      Sht31Sensor.calculate_dewpoint(humidity, temp)
+      |> Sht31Sensor.celsius_to_fahrenheit()
       |> Float.round(1)
 
-    Tortoise.publish("weather_sensor", "front/temp_humidity_pressure",
+    Tortoise.publish("weather_sensor", "front/temp_humidity",
       Jason.encode!(%{
         humidity: humidity,
         temp: temp_f,
-        pressure: pressure,
         dew_point: dew_point,
         utc_time: utc_time,
         timezone: timezone}),
       qos: 0)
 
-    Logger.info("#{utc_time} -- humidity: #{humidity}%, temp: #{temp_f}°F, dew_point #{dew_point}°F, pressure: #{pressure} inHg")
+    Logger.info("#{utc_time} -- humidity: #{humidity}%, temp: #{temp_f}°F, dew_point #{dew_point}°F")
     schedule_collection()
 
     {:noreply, ref}

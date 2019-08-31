@@ -25,7 +25,9 @@ defmodule WeatherSensor.MotionServer do
         Tortoise.publish("weather_sensor", "front/motion", "#{distance}", qos: 0)
         Logger.info("Distance: #{distance}cm")
         schedule_collection(10_000)
-      true -> schedule_collection()
+      true ->
+        Logger.info("Distance: #{distance}cm")
+        schedule_collection()
     end
 
     {:noreply, %{trig: trig, echo: echo}}
@@ -51,7 +53,7 @@ defmodule WeatherSensor.MotionServer do
     Process.sleep(2)
     GPIO.write(trig, 1)
     Process.sleep(1)
-    GPIO.set_interrupts(echo, :both);
+    GPIO.set_interrupts(echo, :both)
 
     time_start =
       receive do

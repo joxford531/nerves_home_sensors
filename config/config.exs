@@ -15,7 +15,7 @@ config :weather_sensor,
   hcsr04_echo_pin: 24,
   hcsr04_trig_pin: 23,
   dht_pin: 4,
-  bmp_pin: 0x77,
+  sht31_pin: 0x44,
   timezone: "America/New_York"
 
 config :power_control,
