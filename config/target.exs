@@ -41,8 +41,8 @@ config :nerves_network, :default,
   wlan0: [
     networks: [
       [
-        ssid: "Kovox",
-        psk: "Nifty_B0lt5858**",
+        ssid: "",
+        psk: "",
         key_mgmt: "WPA-PSK"
       ]
     ]
