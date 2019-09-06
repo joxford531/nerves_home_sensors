@@ -41,7 +41,7 @@ defmodule WeatherSensor.MotionServer do
   end
 
   defp schedule_collection() do
-    Process.send_after(self(), :collect, 1000)
+    Process.send_after(self(), :collect, 500)
   end
 
   defp schedule_collection(delay) when is_number(delay) do

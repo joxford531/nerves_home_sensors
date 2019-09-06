@@ -36,6 +36,7 @@ defmodule WeatherSensor.WeatherServer do
         humidity: humidity,
         temp: temp_f,
         dew_point: dew_point_f,
+        pressure: pressure_inhg,
         utc_time: utc_time,
         timezone: timezone}),
       qos: 0)
