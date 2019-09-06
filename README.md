@@ -1,6 +1,14 @@
 # WeatherSensor
 
-**TODO: Add description**
+## Project
+
+Generated skeleton with ([nerves_init_gadget](https://github.com/nerves-project/nerves_init_gadget)) and added basic modules related to
+the BMP180, SHT3x, and HC-SR04 sensors under a supervision tree. The weather sensors are polled every minute and the motion sensor is
+polled every second and their results pushed to my MQTT broker.
+
+The motion sensor is polled every second unless something crosses roughly 200cm in front of it where it will pushed a message to my 
+MQTT broker and then delayed an additional 10 seconds. This is using `Circuits.GPIO.set_interrupts` to catch the rising and falling
+edge of the echo and therefore it's accuracy is probably limited to a couple of cm, enough to catch something passing in front of it.
 
 ## Targets
 
