@@ -41,8 +41,8 @@ config :nerves_network, :default,
   wlan0: [
     networks: [
       [
-        ssid: "",
-        psk: "",
+        ssid: System.get_env("WIFI_SSID"),
+        psk: System.get_env("WIFI_PSK"),
         key_mgmt: "WPA-PSK"
       ]
     ]
