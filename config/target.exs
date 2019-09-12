@@ -33,7 +33,7 @@ node_name = if Mix.env() != :prod, do: "nerves_bootstrap"
 config :nerves_init_gadget,
   ifname: "wlan0",
   address_method: :dhcp,
-  mdns_domain: "nerves.local",
+  mdns_domain: "weather_station.local",
   node_name: nil,
   node_host: :mdns_domain
 
