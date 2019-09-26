@@ -12,7 +12,7 @@ defmodule WeatherSensor.WeatherServer do
   def init(_) do
     sht_ref = Sht31Sensor.start()
     bmp_ref = BmpSensor.start()
-    schedule_collection()
+    Process.send_after(self(), :collect, 1000)
     {:ok, %{sht_ref: sht_ref, bmp_ref: bmp_ref}}
   end
 
@@ -20,29 +20,32 @@ defmodule WeatherSensor.WeatherServer do
   def handle_info(:collect, %{sht_ref: sht_ref, bmp_ref: bmp_ref}) do
     utc_time = DateTime.utc_now()
     timezone = Application.get_env(:weather_sensor, :timezone)
-    {temp_f, humidity, dew_point_f} = Sht31Sensor.read_temp_humidity_dew_point_us(sht_ref)
-    pressure_inhg = BmpSensor.read_pressure_us(bmp_ref)
+    {temp_sht_f, humidity, dew_point_f} = Sht31Sensor.read_temp_humidity_dew_point_us(sht_ref)
+    {temp_bmp_f, pressure_inhg} = BmpSensor.temp_and_pressure_us(bmp_ref)
 
     humidity = Float.round(humidity, 1)
-
-    temp_f = Float.round(temp_f, 1)
-
+    temp_sht_f = Float.round(temp_sht_f, 1)
+    temp_bmp_f = Float.round(temp_bmp_f, 1)
     dew_point_f = Float.round(dew_point_f, 1)
 
     pressure_inhg = Float.round(pressure_inhg, 2)
 
     Tortoise.publish("weather_sensor", "front/temp_humidity_dew_point_pressure",
       Jason.encode!(%{
-        humidity: humidity,
-        temp: temp_f,
-        dew_point: dew_point_f,
-        pressure: pressure_inhg,
-        utc_time: utc_time,
-        timezone: timezone}),
+        :humidity => humidity,
+        :temp_sht => temp_sht_f,
+        :temp_bmp => temp_bmp_f,
+        :dew_point => dew_point_f,
+        :pressure => pressure_inhg,
+        :time => utc_time,
+        :timezone => timezone}),
       qos: 0)
 
-    Logger.info("#{utc_time} --
-      humidity: #{humidity}%, temp: #{temp_f}°F, dew_point #{dew_point_f}°F, pressure: #{pressure_inhg} inHg")
+    Logger.info("""
+      #{utc_time} -- humidity: #{humidity}%, temp_sht_f: #{temp_sht_f}°F, temp_bmp_f: #{temp_bmp_f}°F,
+      dew_point #{dew_point_f}°F, pressure: #{pressure_inhg} inHg")
+      """
+    )
 
     schedule_collection()
 
