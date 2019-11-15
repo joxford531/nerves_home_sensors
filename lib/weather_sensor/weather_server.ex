@@ -12,6 +12,9 @@ defmodule WeatherSensor.WeatherServer do
   def init(_) do
     sht_ref = Sht31Sensor.start()
     bmp_ref = BmpSensor.start()
+
+    GenServer.start_link(WeatherSensor.RainServer, nil, name: WeatherSensor.RainServer)
+
     Process.send_after(self(), :collect, 1000)
     {:ok, %{sht_ref: sht_ref, bmp_ref: bmp_ref}}
   end
@@ -22,6 +25,8 @@ defmodule WeatherSensor.WeatherServer do
     timezone = Application.get_env(:weather_sensor, :timezone)
     {temp_sht_f, humidity, dew_point_f} = Sht31Sensor.read_temp_humidity_dew_point_us(sht_ref)
     {temp_bmp_f, pressure_inhg} = BmpSensor.temp_and_pressure_us(bmp_ref)
+    rainfall = WeatherSensor.RainServer.get_rainfall_amt_in()
+    city_id = Application.get_env(:weather_sensor, :city_id)
 
     humidity = Float.round(humidity, 1)
     temp_sht_f = Float.round(temp_sht_f, 1)
@@ -31,19 +36,23 @@ defmodule WeatherSensor.WeatherServer do
     pressure_inhg = Float.round(pressure_inhg, 2)
 
     Tortoise.publish("weather_sensor", "front/temp_humidity_dew_point_pressure",
-      Jason.encode!(%{
-        :humidity => humidity,
-        :temp_sht => temp_sht_f,
-        :temp_bmp => temp_bmp_f,
-        :dew_point => dew_point_f,
-        :pressure => pressure_inhg,
-        :time => utc_time,
-        :timezone => timezone}),
+      Jason.encode!(
+        %{
+          :humidity => humidity,
+          :temp_sht => temp_sht_f,
+          :temp_bmp => temp_bmp_f,
+          :dew_point => dew_point_f,
+          :pressure => pressure_inhg,
+          :rainfall => rainfall,
+          :time => utc_time,
+          :timezone => timezone,
+          :city_id => city_id
+        }),
       qos: 0)
 
     Logger.info("""
       #{utc_time} -- humidity: #{humidity}%, temp_sht_f: #{temp_sht_f}°F, temp_bmp_f: #{temp_bmp_f}°F,
-      dew_point #{dew_point_f}°F, pressure: #{pressure_inhg} inHg")
+      dew_point #{dew_point_f}°F, pressure: #{pressure_inhg} inHg, rainfall: #{rainfall} in")
       """
     )
 
@@ -60,6 +69,6 @@ defmodule WeatherSensor.WeatherServer do
   end
 
   defp schedule_collection() do
-    Process.send_after(self(), :collect, 60_000)
+    Process.send_after(self(), :collect, 59_900)
   end
 end

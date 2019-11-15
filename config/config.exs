@@ -12,12 +12,12 @@ config :weather_sensor, target: Mix.target()
 config :tzdata, :autoupdate, :disabled
 
 config :weather_sensor,
-  hcsr04_echo_pin: 24,
-  hcsr04_trig_pin: 23,
   dht_pin: 4,
+  rain_pin: 17,
   sht31_address: 0x44,
   bmp180_address: 0x77,
-  timezone: "America/New_York"
+  timezone: "America/New_York",
+  city_id: 4192289 # openweather API city_id
 
 config :power_control,
   cpu_governor: :powersave,
