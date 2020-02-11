@@ -1,5 +1,6 @@
 defmodule WeatherSensor.WeatherServer do
   use GenServer
+  use Timex
   require Logger
   alias WeatherSensor.{Sht31Sensor, BmpSensor}
 
@@ -56,7 +57,7 @@ defmodule WeatherSensor.WeatherServer do
       """
     )
 
-    schedule_collection()
+    schedule_collection(60_000 - Timex.diff(DateTime.utc_now(), utc_time, :milliseconds)) # try to send only once per minute
 
     {:noreply,  %{sht_ref: sht_ref, bmp_ref: bmp_ref}}
   end
@@ -68,7 +69,7 @@ defmodule WeatherSensor.WeatherServer do
     {:noreply, state}
   end
 
-  defp schedule_collection() do
-    Process.send_after(self(), :collect, 59_900)
+  defp schedule_collection(delay_in_ms) do
+    Process.send_after(self(), :collect, delay_in_ms)
   end
 end
