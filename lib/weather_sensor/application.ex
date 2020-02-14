@@ -11,20 +11,9 @@ defmodule WeatherSensor.Application do
     opts = [strategy: :one_for_one, name: WeatherSensor.Supervisor]
     children =
       [
-        {WeatherSensor.WeatherServer, []}
+        {WeatherSensor.WeatherServer, []},
+        {WeatherSensor.TortoiseSupervisor, []}
       ] ++ children(target())
-
-    Tortoise.Supervisor.start_child(
-      client_id: "weather_sensor",
-      handler: {Tortoise.Handler.Logger, []},
-      user_name: Application.get_env(:weather_sensor, :broker_user),
-      password: Application.get_env(:weather_sensor, :broker_password),
-      server: {
-        Tortoise.Transport.Tcp,
-        host: Application.get_env(:weather_sensor, :broker_host),
-        port: Application.get_env(:weather_sensor, :broker_port)
-      }
-    )
 
     Supervisor.start_link(children, opts)
   end

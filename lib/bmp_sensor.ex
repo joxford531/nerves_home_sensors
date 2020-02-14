@@ -29,9 +29,6 @@ defmodule WeatherSensor.BmpSensor do
     raw
   end
 
-  @doc """
-  Read the trimming parameters from the BMP280's non-volatile memory
-  """
   def calibration(ref) do
     {:ok, <<dig_AC1::big-signed-size(16),
       dig_AC2::big-signed-size(16),
@@ -44,7 +41,11 @@ defmodule WeatherSensor.BmpSensor do
       dig_MB::big-signed-size(16),
       dig_MC::big-signed-size(16),
       dig_MD::big-signed-size(16)>>} =
-    I2C.write_read(ref, Application.get_env(:weather_sensor, :bmp180_address), <<0xAA>>, 22)
+
+    I2C.write_read(
+      ref,
+      Application.get_env(:weather_sensor, :bmp180_address), <<0xAA>>, 22
+    )
 
     %{dig_AC1: dig_AC1,
       dig_AC2: dig_AC2,
