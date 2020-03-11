@@ -3,11 +3,7 @@
 ## Project
 
 Generated skeleton with [nerves_init_gadget](https://github.com/nerves-project/nerves_init_gadget) and added basic modules related to
-the BMP180, SHT3x, and HC-SR04 sensors under a supervision tree. The weather sensors are polled every minute and their results pushed to my MQTT broker. The weather sensors are controlled using [`Circuits.I2C`](https://github.com/elixir-circuits/circuits_i2c)
-
-The motion sensor is polled every 500ms unless something crosses roughly 200cm in front of it, this will cause a result to be pushed 
-to my MQTT broker and then delayed an additional 10 seconds. This is using [`Circuits.GPIO.set_interrupts`](https://github.com/elixir-circuits/circuits_gpio) to catch the rising and falling edge of the echo and therefore it's accuracy is probably limited to a
-couple of cm, enough to catch something passing in front of it.
+the BMP180, SHT31-x, and a GPIO tipping-bucket rain sensor under a supervision tree. The weather sensors are polled every minute and their results pushed to my MQTT broker. The temperature related sensors are controlled using [`Circuits.I2C`](https://github.com/elixir-circuits/circuits_i2c) and the rain sensor is controlled with [`Circuits.GPIO`](https://github.com/elixir-circuits/circuits_gpio)
 
 ## Targets
 
