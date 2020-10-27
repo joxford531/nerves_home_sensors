@@ -10,7 +10,8 @@ defmodule WeatherSensor.Sht31Sensor do
     I2C.write(ref, Application.get_env(:weather_sensor, :sht31_address), <<0x2C, 0x06>>)
     Process.sleep(50)
 
-    {:ok, <<temp0, temp1, _, humid0, humid1, _>>} = I2C.read(ref, 0x44, 6)
+    {:ok, <<temp0, temp1, _, humid0, humid1, _>>} =
+      I2C.read(ref, Application.get_env(:weather_sensor, :sht31_address), 6)
     temp_c = -45 + (175 * (temp0 * 256 + temp1)) / 65535.0
     humidity = 100 * (humid0 * 256 + humid1) / 65535.0
 
@@ -23,7 +24,8 @@ defmodule WeatherSensor.Sht31Sensor do
     I2C.write(ref, Application.get_env(:weather_sensor, :sht31_address), <<0x2C, 0x06>>)
     Process.sleep(50)
 
-    {:ok, <<temp0, temp1, _, humid0, humid1, _>>} = I2C.read(ref, 0x44, 6)
+    {:ok, <<temp0, temp1, _, humid0, humid1, _>>} =
+      I2C.read(ref, Application.get_env(:weather_sensor, :sht31_address), 6)
     temp_c = -45 + (175 * (temp0 * 256 + temp1)) / 65535.0
     humidity = 100 * (humid0 * 256 + humid1) / 65535.0
 
@@ -46,4 +48,3 @@ defmodule WeatherSensor.Sht31Sensor do
   end
 
 end
-
